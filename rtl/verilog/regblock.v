@@ -27,6 +27,8 @@ module regblock(
 	input wire write_flags,
 	input wire set_e,
 	input wire clear_e,
+	input wire set_i,
+	input wire set_f,
 	output wire [7:0] CCR_o,
 	output reg [15:0] path_left_data,
 	output reg [15:0] path_right_data,
@@ -162,7 +164,8 @@ always @(posedge clk_in)
 				`CCR <= CCR_in;
 			end
 		if (set_e | clear_e) eflag <= set_e;
-		//if (clear_e) eflag <= 0;
+		if (set_i) intff <= 1;
+		if (set_f) fflag <= 1;
 		if (write_pc) PC <= new_pc;
 		//if (inc_pc) PC <= PC + 16'h1;
 		if (inc_su) 

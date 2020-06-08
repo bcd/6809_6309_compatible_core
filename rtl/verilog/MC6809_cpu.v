@@ -39,7 +39,7 @@ reg k_write_tfr, k_write_exg;
 reg k_cpu_oe, k_cpu_we, k_inc_pc;
 reg k_indirect_loaded; // set when in indirect indexed and the address has been loaded
 reg [15:0] k_cpu_addr, k_new_pc;
-reg k_write_pc, k_inc_su, k_dec_su, k_set_e, k_clear_e;
+reg k_write_pc, k_inc_su, k_dec_su, k_set_e, k_clear_e, k_set_i, k_set_f;
 reg k_mul_cnt; // multiplier couner
 reg k_write_dest; // set for 1 clock when a register has to be written, dec_o_dest_reg_addr has the register source
 reg k_write_post_incdec; // asserted when in the last write cycle or in write back for loads
@@ -157,6 +157,8 @@ regblock regs(
 	.write_flags(dec_o_write_flags & (state == `SEQ_GRAL_WBACK)),
 	.set_e(k_set_e),
 	.clear_e(k_clear_e),
+	.set_i(k_set_i & (state == `SEQ_MEM_READ_H)),
+	.set_f(k_set_f & (state == `SEQ_MEM_READ_H)),
 	.CCR_o(regs_o_CCR), 
 	.path_left_data(regs_o_left_path_data),
 	.path_right_data(regs_o_right_path_data),
@@ -379,6 +381,8 @@ always @(posedge cpu_clk or posedge k_reset)
 						{ k_eahi, k_ealo } <= 16'hfffc;
 						k_pp_regs <= 8'hff;
 						k_set_e <= 1;
+						k_set_i <= 1;
+						k_set_f <= 1;
 						state <= `SEQ_PREPUSH; // first stack the registers
 						next_push_state <= `SEQ_MEM_READ_H; // than load new PC
 						next_mem_state <= `SEQ_LOADPC; // than continue fetching instructions
@@ -400,6 +404,7 @@ always @(posedge cpu_clk or posedge k_reset)
 						{ k_eahi, k_ealo } <= 16'hfff8;
 						k_pp_regs <= 8'hff;
 						k_set_e <= 1;
+						k_set_i <= 1;
 						state <= `SEQ_PREPUSH; // first stack the registers
 						next_push_state <= `SEQ_MEM_READ_H; // than load new PC
 						next_mem_state <= `SEQ_LOADPC; // than continue fetching instructions
@@ -411,6 +416,8 @@ always @(posedge cpu_clk or posedge k_reset)
 						{ k_eahi, k_ealo } <= 16'hfff6;
 						k_pp_regs <= 8'h81; // PC & CC
 						k_clear_e <= 1;
+						k_set_i <= 1;
+						k_set_f <= 1;
 						state <= `SEQ_PREPUSH; // first stack the registers
 						next_push_state <= `SEQ_MEM_READ_H; // than load new PC
 						next_mem_state <= `SEQ_LOADPC; // than continue fetching instructions
@@ -459,6 +466,8 @@ always @(posedge cpu_clk or posedge k_reset)
                                     k_p3_valid <= 0; // set when an k_opcode is page 3
                                     k_opcode <= 8'h12; // clears all special opcode flags
                                     k_pp_active_reg <= `RN_INV; // ensures that only push/pull control the left/dest muxes
+												k_set_i <= 0;
+												k_set_f <= 0;
                                     if (k_nmi_req)
                                         state <= `SEQ_NMI;
                                     else
