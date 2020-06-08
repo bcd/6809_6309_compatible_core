@@ -779,7 +779,7 @@ always @(posedge cpu_clk or posedge k_reset)
 								end
 							else
 								if (op_JSR) // jsr
-									next_state <= `SEQ_JSR_PUSH;
+									state <= `SEQ_JSR_PUSH;
 								else											
 									begin // no extra load...
 										if (dec_o_operand_read)
