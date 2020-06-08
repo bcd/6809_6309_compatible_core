@@ -76,7 +76,7 @@ always @(*)
 	begin
 		case (path_left_addr)
 			`RN_ACCA: 	path_left_data = { 8'hff, ACCA };
-			`RN_ACCB: 	path_left_data = { 8'hff, ACCB };
+			`RN_ACCB: 	path_left_data = { 8'h00, ACCB };
 			`RN_ACCD: 	path_left_data = `ACCD;
 			`RN_IX: 	path_left_data = IX;
 			`RN_IY: 	path_left_data = IY;
@@ -95,7 +95,7 @@ always @(*)
 	begin
 		case (path_right_addr)
 			`RN_ACCA: 	path_right_data = { 8'hff, ACCA };
-			`RN_ACCB: 	path_right_data = { 8'hff, ACCB };
+			`RN_ACCB: 	path_right_data = { 8'h00, ACCB }; // FIXME
 			`RN_ACCD: 	path_right_data = `ACCD;
 			`RN_IX: 	path_right_data = IX;
 			`RN_IY: 	path_right_data = IY;

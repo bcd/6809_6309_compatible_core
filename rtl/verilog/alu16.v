@@ -29,12 +29,10 @@ wire [3:0] ccr16_out;
 wire [15:0] q16_mul;
 reg [15:0] ra_in, rb_in;
 reg [4:0] rop_in;
-
-
+    
 mul8x8 mulu(clk_in, a_in[7:0], b_in[7:0], q16_mul);
 alu8 alu8(clk_in, ra_in[7:0], rb_in[7:0], CCR, rop_in, q8_out, ccr8_out);
 alu16 alu16(clk_in, ra_in, rb_in, CCR, rop_in, q16_mul, q16_out, ccr16_out);
-
 
 always @(posedge clk_in)
 	begin
@@ -152,8 +150,8 @@ always @(*)
 always @(*)
 	begin
 		case (opcode_in)
-			2'b00, 2'b10: overflow_out = (a_in[15] & b_in[15] & (~q_out[15])) | ((~a_in[15]) & (~b_in[15]) & q_out[7]);
-			2'b01, 2'b11: overflow_out = (a_in[15] & (~b_in[15]) & (~q_out[15])) | ((~a_in[15]) & b_in[15] & q_out[7]);
+			2'b00, 2'b10: overflow_out = (a_in[15] & b_in[15] & (~q_out[15])) | ((~a_in[15]) & (~b_in[15]) & q_out[15]);
+			2'b01, 2'b11: overflow_out = (a_in[15] & (~b_in[15]) & (~q_out[15])) | ((~a_in[15]) & b_in[15] & q_out[15]);
 		endcase
 	end
 
@@ -236,14 +234,25 @@ assign neg8_r = neg8_w;
 assign cneg8_r = neg8_w[7] | neg8_w[6] | neg8_w[5] | neg8_w[4] | neg8_w[3] | neg8_w[2] | neg8_w[1] | neg8_w[0];
 assign vneg8_r = neg8_w[7] & (~neg8_w[6]) & (~neg8_w[5]) & (~neg8_w[4]) & (~neg8_w[3]) & (~neg8_w[2]) & (~neg8_w[1]) & (~neg8_w[0]);
 
-reg c8, h8, n8, v8, z8;
+reg c8, h8, v8;
 reg [7:0] q8;
 		
 wire [7:0] logic_q, arith_q, shift_q;
 wire arith_c, arith_v, arith_h;
 wire shift_c, shift_v;
-logic8 l8(a_in, b_in, opcode_in[1:0], logic_q);
-arith8 a8(a_in, b_in, c_in, h_in, opcode_in[1:0], arith_q, arith_c, arith_v, arith_h);
+
+reg [7:0] alu8_b_in;
+
+always @(*)
+	begin
+        alu8_b_in = b_in[7:0];
+        case (opcode_in)
+            `INC, `DEC: alu8_b_in = 8'h01;
+            `CLR: alu8_b_in = 8'h0;
+        endcase
+    end
+    logic8 l8(a_in, b_in, opcode_in[1:0], logic_q);
+arith8 a8(a_in, alu8_b_in, c_in, h_in, opcode_in[1:0], arith_q, arith_c, arith_v, arith_h);
 shift8 s8(a_in, b_in, c_in, v_in, opcode_in[2:0], shift_q, shift_c, shift_v);
 		// DAA
 assign daa_p0_r = ((a_in[3:0] > 4'h9) | h_in ) ? a_in[7:0] + 8'h6:a_in[7:0];
@@ -295,6 +304,11 @@ always @(*)
 					q8 = logic_q;
 					v8 = 1'b0;
 					end
+			`TST:
+				begin
+					q8 = a_in;
+					v8 = 1'b0;
+					end
 			`DAA:
 				begin // V is undefined, so we don't touch it
 					q8 = { daa8h_r, daa_p0_r[3:0] };
@@ -317,6 +331,7 @@ always @(posedge clk_in)
 always @(*)
 	begin
 		q_out[7:0] = q8; //regq8;
+        //          e, f   h    i       n      z            v   c
 		CCRo = { CCR[7:6], h8, CCR[4], q8[7], (q8 == 8'h0), v8, c8 };
 	end
 
@@ -409,7 +424,7 @@ reg c16, n16, v16, z16;
 reg [15:0] q16;
 		
 wire [15:0] arith_q;
-wire arith_c, arith_v, arith_h;
+wire arith_c, arith_v;
 
 arith16 a16(a_in, b_in, c_in, opcode_in[1:0], arith_q, arith_c, arith_v);
 
@@ -512,12 +527,10 @@ always @(*)
 		endcase
 	end
 
-reg [15:0] regq16;
 reg reg_n_in, reg_z_in;
 /* register before second mux */
 always @(posedge clk_in)
 	begin
-		regq16 <= q16;
 		reg_n_in <= n_in;
 		reg_z_in <= z_in;
 	end

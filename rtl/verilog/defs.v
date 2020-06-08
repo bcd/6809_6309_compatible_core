@@ -7,14 +7,14 @@
 `define RN_U		4'h3
 `define RN_S		4'h4
 `define RN_PC		4'h5
-`define RN_MEM16   	4'h6
-`define RN_IMM16   	4'h7
+//`define RN_MEM16   	4'h6
+//`define RN_IMM16   	4'h7
 `define RN_ACCA		4'h8
 `define RN_ACCB		4'h9
 `define RN_CC		4'ha
 `define RN_DP		4'hb
-`define RN_MEM8		4'hc
-`define	RN_IMM8		4'hd
+//`define RN_MEM8		4'hc
+//`define	RN_IMM8		4'hd
 `define	RN_INV		4'hf
 
 
@@ -45,6 +45,8 @@
 `define DAA    5'b11010  
 `define MUL    5'b11011
 `define LEA    5'b11100
+`define CLR    5'b11101
+`define TST    5'b11110
 
 /* Sequencer states */
 
@@ -65,7 +67,7 @@
 `define SEQ_FETCH_5 		'h0e
 
 `define SEQ_DECODE 			'h0f
-`define SEQ_DECODE_P23		'h10
+`define SEQ_DECODE_P23		'h10 // x
 
 `define SEQ_GRAL_ALU		'h11 
 `define SEQ_GRAL_WBACK		'h12 
@@ -82,9 +84,9 @@
 
 
 `define SEQ_JSR_PUSH		'h1c
-`define SEQ_JSR_PUSH_L		'h1d
-`define SEQ_RTS_POP_L		'h1e
-`define SEQ_RTS_POP_H		'h1f
+`define SEQ_JSR_PUSH_L		'h1d // x
+`define SEQ_RTS_POP_L		'h1e // x
+`define SEQ_RTS_POP_H		'h1f // x
 
 `define SEQ_PREPUSH			'h20
 `define SEQ_PREPULL			'h21
@@ -143,23 +145,17 @@
 `define DSZ_0   2'h0
 `define DSZ_8	2'h1
 `define DSZ_16	2'h2
-
-`define OP_NONE		3'h0
-`define OP_PUSH		3'h1
-`define	OP_PULL		3'h2
-`define OP_RTS		3'h3
-`define OP_JSR		3'h4
-`define OP_JMP		3'h5
-`define OP_LD		3'h6
-`define OP_LEA		3'h7
+/* Memory access type for input/output operands */
+`define MT_NONE		3'h0
+`define MT_BYTE		3'h1
+`define	MT_WORD		3'h2
+`define MT_QUAD		3'h3
 
 /* alu decoder right path modifier */
 `define MOD_DEFAULT 2'h0
 `define MOD_ONE		2'h1
 `define MOD_ZERO	2'h2
 `define MOD_MINUS1	2'h3
-
-`define MEMDEST_PC	2'h0
-`define MEMDEST_MH	2'h1
-`define MEMDEST_AH	2'h2
-`define MEMDEST_I16	2'h3
+// Memory source address
+`define MEMDEST_PC	1'h0
+`define MEMDEST_MH	1'h1
