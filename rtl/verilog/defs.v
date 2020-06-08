@@ -115,7 +115,7 @@
 `define SEQ_MEM_WRITE_L_1	'h3f
 
 // flags used in MC6809_cpu.v
-`define FLAGI regs_o_CCR[5]
+`define FLAGI regs_o_CCR[4]
 `define FLAGF regs_o_CCR[6]
 `define FLAGE regs_o_CCR[7]
 
