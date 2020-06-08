@@ -771,27 +771,25 @@ always @(posedge cpu_clk or posedge k_reset)
 								state <= `SEQ_PC_READ_L;
 								next_state <= `SEQ_IND_DECODE_OFS; // has some offset, load arg
 							end
-						else
-							if (dec_o_ea_ofs16)
-								begin // load 2 bytes offset
-									state <= `SEQ_PC_READ_H;
-									next_state <= `SEQ_IND_DECODE_OFS; // has some offset, load arg
-								end
-							else
-								if (op_JSR) // jsr
-									state <= `SEQ_JSR_PUSH;
-								else											
-									begin // no extra load...
-										if (dec_o_operand_read)
-											begin
-												next_mem_state <= `SEQ_GRAL_ALU;
-												state <= `SEQ_MEM_READ_H;
-												if (dec_o_ea_indirect)
-													k_force_read_word_from_mem <= 1; // to load indirect address
-											end
-										else
-											state <= `SEQ_GRAL_ALU; // no load, then store
+						else if (dec_o_ea_ofs16)
+							begin // load 2 bytes offset
+								state <= `SEQ_PC_READ_H;
+								next_state <= `SEQ_IND_DECODE_OFS; // has some offset, load arg
+							end
+						else if (op_JSR) // jsr
+							state <= `SEQ_JSR_PUSH;
+						else											
+							begin // no extra load...
+								if (dec_o_operand_read)
+									begin
+										next_mem_state <= `SEQ_GRAL_ALU;
+										state <= `SEQ_MEM_READ_H;
+										if (dec_o_ea_indirect)
+											k_force_read_word_from_mem <= 1; // to load indirect address
 									end
+								else
+									state <= `SEQ_GRAL_ALU; // no load, then store
+							end
 					end
 				`SEQ_IND_DECODE_OFS: // loads argument if needed
 					begin
