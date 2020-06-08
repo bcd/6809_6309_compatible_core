@@ -853,7 +853,7 @@ always @(posedge cpu_clk or posedge k_reset)
 						else
 						if (k_pp_regs[1]) begin k_pp_regs[1] <= 1'b0; k_pp_active_reg <= `RN_ACCA; end
 						else
-						if (k_pp_regs[0]) begin k_pp_regs[0] <= 1'b00; k_pp_active_reg <= `RN_CC; end
+						if (k_pp_regs[0]) begin k_pp_regs[0] <= 1'b0; k_pp_active_reg <= `RN_CC; end
                         k_cpu_addr <= regs_o_su - 16'h1;
 					end
 				`SEQ_PREPULL:
