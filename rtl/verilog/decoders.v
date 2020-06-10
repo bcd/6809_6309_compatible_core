@@ -793,6 +793,8 @@ always @(*)
 				ea_ofs8_o = 1'b1;
 			8'b1xx_x_1101: // n,PC
 				ea_ofs16_o = 1'b1;
+			8'b1xx_x_1111: // ,PC
+				ea_ofs16_o = 1'b1;
 		endcase
 	end
 endmodule

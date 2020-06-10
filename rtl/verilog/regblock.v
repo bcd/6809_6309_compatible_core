@@ -282,6 +282,8 @@ always @(*)
 				eamem_addr = pc + { offset16[7] ? 8'hff:8'h0, offset16[7:0] };
 			8'b1xx_x_1101: // n,PC
 				eamem_addr = pc + offset16;
+			8'b1xx_x_1111: // n,PC
+				eamem_addr = offset16;
 		endcase
 	end
 

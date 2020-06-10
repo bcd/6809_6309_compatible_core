@@ -776,9 +776,7 @@ always @(posedge cpu_clk or posedge k_reset)
 								state <= `SEQ_PC_READ_H;
 								next_state <= `SEQ_IND_DECODE_OFS; // has some offset, load arg
 							end
-						else if (op_JSR) // jsr
-							state <= `SEQ_JSR_PUSH;
-						else											
+						else
 							begin // no extra load...
 								if (dec_o_operand_read)
 									begin
@@ -789,12 +787,17 @@ always @(posedge cpu_clk or posedge k_reset)
 									end
 								else
 									state <= `SEQ_GRAL_ALU; // no load, then store
-							end
+								end
 					end
 				`SEQ_IND_DECODE_OFS: // loads argument if needed
 					begin
-						if (op_JSR) // jsr
-								next_state <= `SEQ_JSR_PUSH;
+						if (op_JSR || op_JMP)
+							begin
+								next_mem_state <= op_JSR ? `SEQ_JSR_PUSH : `SEQ_JMP_LOAD_PC;
+								state <= `SEQ_MEM_READ_H;
+								if (dec_o_ea_indirect)
+									k_force_read_word_from_mem <= 1; // to load indirect address
+							end
 						else
 							begin
 								if (dec_o_operand_read)
@@ -972,7 +975,11 @@ always @(posedge cpu_clk or posedge k_reset)
                                         if (k_indirect_loaded)
                                             k_cpu_addr <= { k_memhi, k_memlo };
                                         else
-                                            k_cpu_addr <= regs_o_eamem_addr;
+                                            begin
+                                                k_cpu_addr <= regs_o_eamem_addr;
+                                                if (op_JSR | op_JMP)
+                                                    k_indirect_loaded <= 1'b1;
+                                            end
                                     default: 
                                         if (op_PULL | op_RTI | op_RTS) 
                                             begin 
@@ -1025,7 +1032,11 @@ always @(posedge cpu_clk or posedge k_reset)
 						case (dec_o_p1_mode)
 							`INDEXED: // address loaded, load argument
 								if (k_indirect_loaded | (!dec_o_ea_indirect))
-									state <= next_mem_state;
+									begin
+										state <= next_mem_state;
+										if (op_JMP)
+											k_write_pc <= 1;
+									end
 								else
 									begin
 										state <= `SEQ_MEM_READ_H;
