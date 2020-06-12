@@ -172,10 +172,10 @@ always @(*)
             4'h3:
                 begin
                     case (opcode[3:0])
-                        4'h0: begin mo = `INDEXED; op_LEA = 1; dr = `RN_IX; end
-                        4'h1: begin mo = `INDEXED; op_LEA = 1; dr = `RN_IY; end
-                        4'h2: begin mo = `INDEXED; op_LEA = 1; dr = `RN_S; end
-                        4'h3: begin mo = `INDEXED; op_LEA = 1; dr = `RN_U; end
+                        4'h0: begin mo = `INDEXED; op_LEA = 1; aop = `LEA; dr = `RN_IX; end
+                        4'h1: begin mo = `INDEXED; op_LEA = 1; aop = `LEA; dr = `RN_IY; end
+                        4'h2: begin mo = `INDEXED; op_LEA = 1; aop = `LEA; dr = `RN_S; end
+                        4'h3: begin mo = `INDEXED; op_LEA = 1; aop = `LEA; dr = `RN_U; end
                         4'h4: begin op_PUSH = 1; end
                         4'h5: begin op_PULL = 1; end
                         4'h6: begin op_PUSH = 1; ss = 0; end
