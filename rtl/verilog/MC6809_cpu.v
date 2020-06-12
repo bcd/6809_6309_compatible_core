@@ -454,7 +454,9 @@ always @(posedge cpu_clk or posedge k_reset)
 					end
 				`SEQ_LOADPC: /* loads the PC with the address taken from the reset vector */
 					begin
+`ifdef DEBUG_INTERRUPT
 						$display("cpu_data_i %02x %t", cpu_data_i, $time);
+`endif
 						state <= `SEQ_FETCH;
 					end
 				`SEQ_FETCH: /* execution starts here */
